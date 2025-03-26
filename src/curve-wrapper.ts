@@ -9,12 +9,15 @@
 
 /// <reference types="emscripten" />
 import factory from './built/curveasm'
-import { KeyPair, Curve, AsyncCurve } from './types'
+import { AsyncCurve, Curve, KeyPair } from './types'
 
 interface CurveModule extends EmscriptenModule {
     _curve25519_donna(mypublic_ptr: number, secret_ptr: number, basepoint_ptr: number): number
     _curve25519_sign(signature_ptr: number, privateKey_ptr: number, message_ptr: number, message_len: number): number
     _curve25519_verify(signature_ptr: number, privateKey_ptr: number, message_ptr: number, message_len: number): number
+    _malloc(size: number): number
+    _free(ptr: number): void
+    HEAPU8: Uint8Array
 }
 const instancePromise = factory()
 
@@ -35,12 +38,17 @@ export class Curve25519Wrapper implements Curve {
     private _allocate(bytes) {
         const address = this._module._malloc(bytes.length)
         this._module.HEAPU8.set(bytes, address)
-
         return address
     }
 
     private _readBytes(address, length, array) {
         array.set(this._module.HEAPU8.subarray(address, address + length))
+    }
+
+    private _free(ptr: number) {
+        if (this._module._free) {
+            this._module._free(ptr)
+        }
     }
 
     keyPair(privKey: ArrayBuffer): KeyPair {
@@ -67,9 +75,9 @@ export class Curve25519Wrapper implements Curve {
         const res = new Uint8Array(32)
         this._readBytes(publicKey_ptr, 32, res)
 
-        this._module._free(publicKey_ptr)
-        this._module._free(privateKey_ptr)
-        this._module._free(basepoint_ptr)
+        this._free(publicKey_ptr)
+        this._free(privateKey_ptr)
+        this._free(basepoint_ptr)
 
         return { pubKey: res.buffer, privKey: priv.buffer }
     }
@@ -94,9 +102,9 @@ export class Curve25519Wrapper implements Curve {
         const res = new Uint8Array(32)
         this._readBytes(sharedKey_ptr, 32, res)
 
-        this._module._free(sharedKey_ptr)
-        this._module._free(privateKey_ptr)
-        this._module._free(basepoint_ptr)
+        this._free(sharedKey_ptr)
+        this._free(privateKey_ptr)
+        this._free(basepoint_ptr)
 
         return res.buffer
     }
@@ -116,9 +124,9 @@ export class Curve25519Wrapper implements Curve {
         const res = new Uint8Array(64)
         this._readBytes(signature_ptr, 64, res)
 
-        this._module._free(signature_ptr)
-        this._module._free(privateKey_ptr)
-        this._module._free(message_ptr)
+        this._free(signature_ptr)
+        this._free(privateKey_ptr)
+        this._free(message_ptr)
 
         return res.buffer
     }
@@ -135,9 +143,9 @@ export class Curve25519Wrapper implements Curve {
 
         const res = this._module._curve25519_verify(signature_ptr, publicKey_ptr, message_ptr, message.byteLength)
 
-        this._module._free(publicKey_ptr)
-        this._module._free(signature_ptr)
-        this._module._free(message_ptr)
+        this._free(publicKey_ptr)
+        this._free(signature_ptr)
+        this._free(message_ptr)
 
         return res !== 0
     }

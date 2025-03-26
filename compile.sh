@@ -5,5 +5,9 @@ emcc native/ed25519/additions/*.c native/curve25519-donna.c native/ed25519/*.c n
 -o src/built/curveasm.js \
 -Inative/ed25519/nacl_includes -Inative/ed25519 -Inative/ed25519/sha512 \
 -s WASM=0 -s MODULARIZE \
--s EXPORTED_FUNCTIONS="['_curve25519_donna','_curve25519_sign','_curve25519_verify','_malloc']"
+-s EXPORTED_FUNCTIONS="['_curve25519_donna','_curve25519_sign','_curve25519_verify','_malloc']" \
+-s ENVIRONMENT='web' \
+-s EXPORTED_RUNTIME_METHODS="['ccall','cwrap']" \
+-s TEXTDECODER=1 \
+--pre-js emscripten-config.js
 

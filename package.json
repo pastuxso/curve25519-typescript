@@ -1,12 +1,15 @@
 {
-  "name": "@privacyresearch/curve25519-typescript",
+  "name": "@pastuxso/curve25519-typescript",
   "version": "0.0.12",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "repository": "https://github.com/privacyresearchgroup/curve25519-typescript",
+  "repository": "https://github.com/pastuxso/curve25519-typescript",
   "author": "Rolfe Schmidt <rolfeschmidt@gmail.com>",
   "license": "GPL-3.0-only",
   "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "test": "jest --config jestconfig.json",
     "lint": "eslint -c .eslintrc.js  '**/*.ts'",
@@ -37,5 +40,6 @@
     "lib/*.js",
     "lib/*.d.ts",
     "lib/built/**/*"
-  ]
+  ],
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
